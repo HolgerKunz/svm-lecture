@@ -21,7 +21,7 @@ def to_r3(x0, x1):
     x2 = x0**2 + x1**2
     return np.column_stack((x0, x1, x2))
 
-def scatter_2d(X, y, title):
+def scatter_2d(X, y):
     """Two-dimensional scatter plot
 
     Parameters
@@ -30,8 +30,6 @@ def scatter_2d(X, y, title):
         shape (n_samples, 2)
     y : np.ndarray
         labels (one-dimensional)
-    title : str
-        plot title
 
     Returns
     -------
@@ -41,14 +39,13 @@ def scatter_2d(X, y, title):
     plt.scatter(X[:, 0], X[:, 1],
                 marker='o', s=50,
                 c=y, edgecolors='None', alpha=0.35)
-    plt.title(title)
     plt.xlabel('$x_1$')
     plt.ylabel('$x_2$')
     plt.tick_params(axis='both',
                     top='off', bottom='off',
                     left='off', right='off')
 
-def scatter_3d(X, y, title):
+def scatter_3d(X, y):
     """Three-dimensional scatter plot
 
     Parameters
@@ -57,8 +54,6 @@ def scatter_3d(X, y, title):
         shape (n_samples, 3)
     y : np.ndarray
         labels (one-dimensional)
-    title : str
-        plot title
 
     Returns
     -------
@@ -70,14 +65,13 @@ def scatter_3d(X, y, title):
     ax.scatter(X[:, 0], X[:, 1], X[:, 2],
                marker='o', s=25,
                c=y, edgecolors='None')
-    plt.title(title)
     ax.set_xlabel('$x_1$')
     ax.set_ylabel('$x_2$')
     ax.set_zlabel('$x_3$')
     ax.view_init(elev=10)
     ax.set_axis_bgcolor('white')
 
-def maximal_margin_hyperplane(svc, X, y):
+def maximal_margin_hyperplane(svc, X, y, with_margins=True):
     """Plot the maximal margin hyperplane
 
     Parameters
@@ -88,6 +82,8 @@ def maximal_margin_hyperplane(svc, X, y):
         shape (n_samples, 2)
     y : np.ndarray
         labels (one-dimensional)
+    with_margins : bool
+        controls whether or not to plot the margins
 
     Returns
     -------
@@ -108,9 +104,10 @@ def maximal_margin_hyperplane(svc, X, y):
     b = svc.support_vectors_[-1]
     yy_up = a * xx + (b[1] - a * b[0])
     plt.plot(xx, yy, color='DimGray', linestyle='-')
-    plt.plot(xx, yy_down, color='DimGray', linestyle=':')
-    plt.plot(xx, yy_up, color='DimGray', linestyle=':')
-    plt.scatter(svc.support_vectors_[:, 0], svc.support_vectors_[:, 1],
-                s=100, facecolors='None', edgecolors='black')
+    if with_margins:
+        plt.plot(xx, yy_down, color='DimGray', linestyle=':')
+        plt.plot(xx, yy_up, color='DimGray', linestyle=':')
+        plt.scatter(svc.support_vectors_[:, 0], svc.support_vectors_[:, 1],
+                    s=100, facecolors='None', edgecolors='black')
     plt.xlabel('$x_1$')
     plt.ylabel('$x_2$')
