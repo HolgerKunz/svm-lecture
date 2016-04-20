@@ -71,7 +71,7 @@ def scatter_3d(X, y):
     ax.view_init(elev=10)
     ax.set_axis_bgcolor('white')
 
-def maximal_margin_hyperplane(svc, X, y, with_margins=True):
+def maximal_margin_hyperplane(svc, X, y, margins=True, support_vectors=True):
     """Plot the maximal margin hyperplane
 
     Parameters
@@ -82,8 +82,10 @@ def maximal_margin_hyperplane(svc, X, y, with_margins=True):
         shape (n_samples, 2)
     y : np.ndarray
         labels (one-dimensional)
-    with_margins : bool
+    margins : bool
         controls whether or not to plot the margins
+    support_vectors : bool
+        controls whether or not the support vectors are identified
 
     Returns
     -------
@@ -95,19 +97,44 @@ def maximal_margin_hyperplane(svc, X, y, with_margins=True):
     """
     assert isinstance(svc, sklearn.svm.classes.SVC)
     assert X.shape[1] == 2, 'X must be of shape (n_samples, 2)'
+    x_min = X[:, 0].min()
+    x_max = X[:, 0].max()
     w = svc.coef_[0]
     a = -w[0] / w[1]
-    xx = np.linspace(X[:, 0].min() - 5, X[:, 0].max() + 5)
+    xx = np.linspace(x_min * 2, x_max * 2)
     yy = a * xx - (svc.intercept_[0]) / w[1]
     b = svc.support_vectors_[0]
     yy_down = a * xx + (b[1] - a * b[0])
     b = svc.support_vectors_[-1]
     yy_up = a * xx + (b[1] - a * b[0])
     plt.plot(xx, yy, color='DimGray', linestyle='-')
-    if with_margins:
+    if margins:
         plt.plot(xx, yy_down, color='DimGray', linestyle=':')
         plt.plot(xx, yy_up, color='DimGray', linestyle=':')
+    if support_vectors:
         plt.scatter(svc.support_vectors_[:, 0], svc.support_vectors_[:, 1],
                     s=100, facecolors='None', edgecolors='black')
     plt.xlabel('$x_1$')
     plt.ylabel('$x_2$')
+
+def soft_margin_hyperplane(svc, X, y):
+    """Plot the soft margin hyperplane
+
+    Notes
+    -----
+    Code from http://scikit-learn.org/stable/auto_examples/svm/plot_svm_margin.html
+    """
+    assert isinstance(svc, sklearn.svm.classes.SVC)
+    assert X.shape[1] == 2, 'X must be of shape (n_samples, 2)'
+    x_min = X[:, 0].min()
+    x_max = X[:, 0].max()
+    w = svc.coef_[0]
+    a = -w[0] / w[1]
+    xx = np.linspace(x_min * 2, x_max * 2)
+    yy = a * xx - (svc.intercept_[0]) / w[1]
+    margin = 1 / np.sqrt(np.sum(svc.coef_ ** 2))
+    yy_down = yy + a * margin
+    yy_up = yy - a * margin
+    plt.plot(xx, yy, color='DimGray', linestyle='-')
+    plt.plot(xx, yy_down, color='DimGray', linestyle=':')
+    plt.plot(xx, yy_up, color='DimGray', linestyle=':')
